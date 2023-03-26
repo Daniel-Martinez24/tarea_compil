@@ -56,7 +56,7 @@ def colCar(x):
     if x == '=': return 6   
     if x == '.': return 7
     if x == '"': return 8
-    if x in delu: return 13
+    if x in delu: return 15
     erra('Error Lexico', x + ' simbolo no valido en Alfabeto')
     return ERR
 
@@ -312,6 +312,7 @@ def blkFunc():
 def funcs():
         global entrada, idx, tok, lex, tipo, bPrinc
         if not(lex in tipo):
+            print(lex)
             erra('Error Sintactico', 'Se esperaba tipo' + str(tipo))
         tok, lex = scanner()
         if tok != 'Ide': erra('Error Sintaxis', 'Se esperaba Nombre Funcion y llego ' + lex)
