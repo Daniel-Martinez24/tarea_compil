@@ -3,4 +3,10 @@ nulo principal(){
     si falso hacer { 
         imprime("Hola");
     };
+    mientras que x < 2 {
+        imprime("gola");
+    };
+    repite {
+        imprime("gola");
+    } hasta que verdadero;
 }

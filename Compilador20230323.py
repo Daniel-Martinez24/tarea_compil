@@ -355,6 +355,15 @@ def mientras():
     tok, lex = scanner()
     if lex != 'que':
         erra('Error de Sintaxis', 'se esperaba si y llego '+ lex)
+    tok, lex = scanner()
+    condicion()
+    tok, lex = scanner()
+    print('despues de condicin' , tok, lex)
+    if lex != '{': erra('Error de Sintaxis', 'se esperaba un { y llego '+ lex)
+    print(lex)
+    blkFunc()
+    if lex != '}': erra('Error de Sintaxis', 'se esperaba un } y llego '+ lex)
+    #time.sleep(10)
 
 def condicion():
     """
@@ -364,9 +373,10 @@ def condicion():
     verdadero (bool , ctl)
     """
     global tok, lex
-    print('llegue ', tok, lex)
+    # print('llegue ', tok, lex)
     if lex in ctl:
-        print('es ', lex)
+        pass
+        # print('es ', lex)
     # cacho que sea una variable
     # no sé como hacer aun xd
     elif True:
@@ -379,7 +389,7 @@ def condicion():
 import time
 def si():
     global tok, lex 
-    print(tok, lex)
+    #print(tok, lex)
     if lex != 'si':
         erra('Error de Sintaxis', 'se esperaba si y llego '+ lex)
 
@@ -411,7 +421,23 @@ def si():
         erra('Error de Sintaxis', 'se esperaba un ; y llego y llego '+ lex)
     print(tok, lex)
     """
-def repite(): pass
+def repite(): 
+    global tok, lex 
+    if lex != 'repite':
+        erra('Error de Sintaxis', 'se esperaba repite y llego '+ lex)
+    # print('repite')
+    tok, lex = scanner()
+    if lex != '{': erra('Error de Sintaxis', 'se esperaba un { y llego '+ lex)
+    blkFunc()
+    if lex != '}': erra('Error de Sintaxis', 'se esperaba un } y llego '+ lex)
+    tok, lex = scanner()
+    if lex != 'hasta': erra('Error de Sintaxis', 'se esperaba un hasta y llego '+ lex)
+    tok, lex = scanner()
+    if lex != 'que': erra('Error de Sintaxis', 'se esperaba un que y llego '+ lex)
+    
+    tok, lex = scanner()
+    condicion()
+    time.sleep(2)
 
 def lmp(): pass
 
