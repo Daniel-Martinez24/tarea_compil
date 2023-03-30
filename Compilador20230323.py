@@ -384,8 +384,7 @@ def si():
         erra('Error de Sintaxis', 'se esperaba si y llego '+ lex)
 
     tok, lex = scanner()
-    # aquí va la expresión
-    condicion()
+    condicion() # aquí va la expresión
     tok, lex = scanner()
     # print('acutal', tok, lex)
     if lex != 'hacer':
@@ -393,9 +392,13 @@ def si():
     tok, lex = scanner()
     if lex != '{': erra('Error de Sintaxis', 'se esperaba un { y llego '+ lex)
     print(lex)
-    time.sleep(10)
+    blkFunc()
+    if lex != '}': erra('Error de Sintaxis', 'se esperaba un } y llego '+ lex)
+    # print(lex)
+    # falta el si no
+    # time.sleep(10)
    
-    
+    """
     tok, lex = scanner()
     # aquí va el por hacer
     tok, lex = scanner()
@@ -407,7 +410,7 @@ def si():
     if lex != ';':
         erra('Error de Sintaxis', 'se esperaba un ; y llego y llego '+ lex)
     print(tok, lex)
-
+    """
 def repite(): pass
 
 def lmp(): pass
@@ -428,6 +431,7 @@ def comando():
     elif lex == 'repite': repite()
     elif lex == 'lmp': lmp()
     elif lex == 'regresa': regresa()
+    elif lex == '/': comentarios()
     else: erra('Error de Sintaxis', 'comando no definido '+ lex)
     tok, lex = scanner()
 
@@ -475,6 +479,26 @@ def funcs():
         if lex != ')': erra('Error de Sintaxis', 'se esperaba parentisis cerrado \")\"')
         tok, lex = scanner()
         blkFunc()
+
+def comentarios():
+    global entrada, idx, tok, lex
+    print('inicio comentario ', lex, tok)
+    print('llegue')
+    tok, lex = scanner()  
+    if lex != "/": erra('Error de Sintaxis', 'se esperaba / y llego ' + lex )
+    conti = True
+    while conti:
+        # tok, lex = scanner()  
+        print('lex' ,entrada[idx])
+        idx+=1
+        if entrada[idx] == '\n':
+            print('salto')
+            conti = False
+            # lex, tok
+            tok, lex= scanner()  
+    print('fin comentario ', lex, tok)
+    time.sleep(3) # aun falla
+
 
 def prgm():
     while len(entrada) > 0 and  idx < len(entrada):

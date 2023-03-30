@@ -1,4 +1,6 @@
 nulo principal(){
     imprime("Hola");
-    si x > a hacer { ;
+    si falso hacer { 
+        imprime("Hola");
+    };
 }
