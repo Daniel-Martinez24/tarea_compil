@@ -1,15 +1,103 @@
-ERR = -1 # valor que indica un error en la matriz de transiciones o en la entrada.
-ACP = 99 #valor que indica que se ha alcanzado un estado de aceptación.
-idx = 0 #índice que se utiliza para recorrer la entrada.
-cERR = False # variable booleana que se utiliza para indicar si ha ocurrido un error durante el análisis léxico.
-tok = '' # variable que se utiliza para almacenar el tipo de token encontrado.
-lex = '' #  variable que se utiliza para almacenar el lexema encontrado.
-bPrinc = False # variable booleana que se utiliza para indicar si se está analizando el programa principal.
-ren = 1 # variable que se utiliza para almacenar el número de línea actual.
-colu = 0 # variable que se utiliza para almacenar el número de columna actual.
+ERR = -1
+ACP = 99
+idx = 0
+cERR = False
+tok = ''
+lex = ''
+bPrinc = False
+ren = 1
+colu = 0
+pTipos = []
+
+cTipo = ["E=E", "A=A", "R=R", "L=L", "R=E",
+        "E+E", "E+R", "R+E", "R+R", "A+A",
+        "E-E", "E-R", "R-E", "R-R",
+        "E*E", "E*R", "R*E", "R*R",
+        "E/E", "E/R", "R/E", "R/R",
+        "E\37E", "-E", "-R",
+        "LyL", "LoL", "noL",
+        "E>E", "R>E", "E>R", "R>R",
+        "E<E", "R<E", "E<R", "R<R",
+        "E>=E", "R>=E", "E>=R", "R>=R",
+        "E<=E", "R<=E", "E<=R", "R<=R",
+        "E<>E", "R<>E", "E<>R", "R<>R", "A<>A",
+        "E==E", "R==E", "E==R", "R==R", "A==A"
+]
+
+tipoR = ["",  "",  "",  "",  "",
+        "E", "R", "R", "R", "A",
+        "E", "R", "R", "R",
+        "E", "R", "R", "R",
+        "R", "R", "R", "R",
+                                          "E", "E", "R",
+                                          "L", "L", "L",
+                                          "L", "L", "L", "L",
+                                          "L", "L", "L", "L",
+                                          "L", "L", "L", "L",
+                                          "L", "L", "L", "L",
+                                          "L", "L", "L", "L", "L",
+                                          "L", "L", "L", "L", "L"
+]
+
+def buscaTipo(cadt):
+    for i in range(55):
+        if cTipo[i]==cadt: return i
+    return -1
+
+
+class objPrgm():
+    def __init__(self, nom, cls, tip, dim1, dim2, apv) -> None:
+        self.nombre = nom
+        self.clase = cls
+        self.tipo = tip
+        self.dim1 = dim1
+        self.dim2 = dim2
+        self.apv = apv
+
+class TabSimb():
+    arreglo = []
+    def inserSimbolo(self, nom, cls, tip, dim1, dim2, apv):
+        obj = objPrgm(nom, cls, tip, dim1, dim2, apv)
+        self.arreglo.append( obj )
+
+    def buscaSimbolo(self, ide):
+        for x in self.arreglo:
+            if x.nom == ide: return x
+        return None
+    
+    def grabaTabla(self, archSal):
+        with open(archSal, 'r') as aSal:
+            if aSal == None: return 
+
+        with open(archSal, 'w') as aSal:
+            for x in tabSimb:
+                aSal.write(x.nom +',' + x.clas + ',' + x.tip + ',' + \
+                           x.dim1 + ','+ x.dim2 + ',#')
+            aSal.close()
+        return
+
+class codigo():
+    def __init__(self, mnem, dir1, dir2):
+        self.mnemo = mnem
+        self.dir1 = dir1
+        self.dir2 = dir2
+linCod = 1    
+class Programa():
+    cod = []
+    def insCodigo(self, mnemo, dir1, dir2):
+        global linCod
+        x = codigo(mnemo, dir1, dir2)
+        self.cod[linCod] = x
+        linCod = linCod + 1
+
+
+tabSimb = TabSimb()  
+
+prgm = Programa()
+
+pilaTipos = []
+
 def erra(terr, desc):
-    #imprimir un mensaje de error en la salida estándar, indicando el tipo de error y la posición en la que se ha producido. 
-    #La función actualiza las variables globales ren y colu, y establece la variable booleana cERR en True para indicar que se ha producido un error durante el análisis léxico.
     global ren, colu
     global cERR
     print('['+str(ren)+']'+'['+str(colu)+']', terr, desc)
@@ -17,7 +105,7 @@ def erra(terr, desc):
 
 matran=[
     #let  dig  del  opa   <    >    =    .   "
-    [1,   2,   6,   5,    10,  8,   7,  ERR, 12], #0 
+    [1,   2,   6,   5,    10,  8,   7,  ERR, 12], #0
     [1,   1,   ACP, ACP, ACP, ACP, ACP, ACP,ACP], #1
     [ACP, 2,   ACP, ACP, ACP, ACP, ACP,  3, ACP], #2
     [ERR, 4,   ERR, ERR, ERR, ERR, ERR, ERR,ERR], #3
@@ -33,20 +121,18 @@ matran=[
     [ACP, ACP, ACP, ACP, ACP, ACP, ACP, ACP,ACP]  #13
 ]
 
-tipo = ['nulo', 'entero', 'decimal', 'palabra', 'logico'] # lista de strings que contiene los tipos de datos que puede manejar el lenguaje.
-opl = ['no', 'y', 'o'] #lista de strings que contiene los operadores lógicos que puede manejar el lenguaje.
-ctl= ['verdadero', 'falso'] # lista de strings que contiene las constantes lógicas que puede manejar el lenguaje.
+tipo = ['nulo', 'entero', 'decimal', 'palabra', 'logico']
+opl = ['no', 'y', 'o']
+ctl= ['verdadero', 'falso']
 key= ['constante', 'desde', 'si', 'hasta', 'mientras', 'entero', 'decimal', 'regresa', 'hacer',
-      'palabra', 'logico', 'nulo', 'sino', 'incr' 'imprime', 'imprimenl', 'lee', 'repite', 'que'] # lista de strings que contiene las palabras clave del lenguaje.
-opar=['+', '-', '*', '/', '%', '^'] #lista de strings que contiene los operadores aritméticos que puede manejar el lenguaje.
-deli=[';', ',', '(',')', '{', '}', '[', ']', ':'] # lista de strings que contiene los delimitadores que puede manejar el lenguaje.
-delu=[' ', '\t', '\n'] # lista de strings que contiene los caracteres especiales que se pueden ignorar durante el análisis léxico.
-opRl = ['<', '>', '<=', '>=', '<>'] #lista de strings que contiene los operadores relacionales que puede manejar el lenguaje.
-tkCts = ['Ent', 'Dec', 'CtA', 'CtL'] # lista de strings que contiene los tokens correspondientes a las constantes enteras, decimales, caracteres y lógicas.
+      'palabra', 'logico', 'nulo', 'sino', 'incr' 'imprime', 'imprimenl', 'lee', 'repite', 'que']
+opar=['+', '-', '*', '/', '%', '^']
+deli=[';', ',', '(',')', '{', '}', '[', ']', ':']
+delu=[' ', '\t', '\n']
+opRl = ['<', '>', '<=', '>=', '<>']
+tkCts = ['Ent', 'Dec', 'CtA', 'CtL']
 entrada = ''
-def colCar(x): 
-    # se encarga de asignar un valor numérico a cada símbolo del alfabeto del lenguaje. 
-    # Este valor se utiliza como índice en la matriz de transiciones para determinar el siguiente estado. Si el símbolo no pertenece al alfabeto del lenguaje se genera un error léxico.
+def colCar(x):
     if x == '_' or x.isalpha(): return 0 
     if x.isdigit(): return 1
     if x in deli: return 2
@@ -60,9 +146,8 @@ def colCar(x):
     erra('Error Lexico', x + ' simbolo no valido en Alfabeto')
     return ERR
 
+
 def scanner():
-    # es la que se encarga de analizar la entrada y generar los tokens correspondientes. Para esto, se recorre la entrada caracter por caracter y se va consultando la matriz de transiciones para determinar el siguiente estado. 
-    # Si se llega a un estado de aceptación, se genera el token correspondiente y se guarda el lexema en la variable lex. Si se llega a un estado de error, se genera un mensaje de error y se marca la variable cERR como verdadera.
     global entrada, ERR, ACP, idx, ren, colu
     estado = 0
     lexema = ''
@@ -135,13 +220,20 @@ def termino():
         if lex != ')':
             erra('Error de Sintaxis', 'se espera cerrar ) y llego '+ lex)
     elif tok == 'Ide':
+        nomIde = lex
         tok, lex = scanner()
         if lex == '[': 
             tok, lex = scanner()
             expr()
             if lex != ']':
                 erra('Error Sintaxis', 'se esperaba cerrar ] y llego '+lex)
-    
+        elif lex == '(': pass
+        oIde = tabSimb.buscaSimbolo(nomIde)
+        if oIde != None:
+            pilaTipos.append(oIde.tip)
+        else:
+            erra("Error de Semantica", 'Identificador no declarado '+ nomIde) 
+            pilaTipos('I')
     elif tok == 'CtL' or tok == 'CtA' or tok == 'Dec' or tok == 'Ent': 
         cte()
     if lex != ')':  
@@ -255,9 +347,66 @@ def imprimenl():
 
 def desde(): pass
 
-def mientras(): pass
+def mientras():
+    global tok, lex
+    if lex != 'mientras':
+        erra('Error de Sintaxis', 'se esperaba si y llego '+ lex)
 
-def si(): pass
+    tok, lex = scanner()
+    if lex != 'que':
+        erra('Error de Sintaxis', 'se esperaba si y llego '+ lex)
+
+def condicion():
+    """
+    puede tener
+    x > 1 (comparación)
+    num == 0 o num == 1 (or)
+    verdadero (bool , ctl)
+    """
+    global tok, lex
+    print('llegue ', tok, lex)
+    if lex in ctl:
+        print('es ', lex)
+    # cacho que sea una variable
+    # no sé como hacer aun xd
+    elif True:
+        tok, lex = scanner()
+        if lex not in opRl: erra('Error de Sintaxis', 'se esperaba cerrar operador y llego '+ lex)
+        tok, lex = scanner() 
+        # vuelvo a verificar que sea lo correcto, no se como
+         # tok, lex = scanner() 
+        
+import time
+def si():
+    global tok, lex 
+    print(tok, lex)
+    if lex != 'si':
+        erra('Error de Sintaxis', 'se esperaba si y llego '+ lex)
+
+    tok, lex = scanner()
+    # aquí va la expresión
+    condicion()
+    tok, lex = scanner()
+    # print('acutal', tok, lex)
+    if lex != 'hacer':
+        erra('Error de Sintaxis', 'se esperaba un hacer y llego y llego '+ lex)
+    tok, lex = scanner()
+    if lex != '{': erra('Error de Sintaxis', 'se esperaba un { y llego '+ lex)
+    print(lex)
+    time.sleep(10)
+   
+    
+    tok, lex = scanner()
+    # aquí va el por hacer
+    tok, lex = scanner()
+    if lex == 'regresa':
+          pass
+    tok, lex = scanner();
+    # verificar q el regresar regrese algo
+    tok, lex = scanner()
+    if lex != ';':
+        erra('Error de Sintaxis', 'se esperaba un ; y llego y llego '+ lex)
+    print(tok, lex)
 
 def repite(): pass
 
@@ -265,9 +414,11 @@ def lmp(): pass
 
 def regresa(): pass
 
+def asigLfunc(): pass
+
 def comando(): 
     global tok, lex
-    #if tok == 'Ide': asigLfunc()
+    if tok == 'Ide': asigLfunc()
     if lex == 'lee': leer()
     elif lex == 'imprime': imprime()
     elif lex == 'imprimenl': imprimenl()
@@ -312,7 +463,6 @@ def blkFunc():
 def funcs():
         global entrada, idx, tok, lex, tipo, bPrinc
         if not(lex in tipo):
-            print(lex)
             erra('Error Sintactico', 'Se esperaba tipo' + str(tipo))
         tok, lex = scanner()
         if tok != 'Ide': erra('Error Sintaxis', 'Se esperaba Nombre Funcion y llego ' + lex)
@@ -346,4 +496,4 @@ if __name__ == '__main__':
         
     print(entrada)
     parser()
-    if not(cERR): print('Programa COMPILO con EXITO')
+    if not(cERR): print('Programa COMPILO con EXITO') 

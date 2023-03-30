@@ -1,3 +1,4 @@
 nulo principal(){
     imprime("Hola");
+    si x > a hacer { ;
 }
